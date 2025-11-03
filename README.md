@@ -1,79 +1,82 @@
-# Projeto IoT com ESP32 e MQTT Simulado no Wokwi
+# 🚀 CHECKPOINT 03: Protocolo MQTT com ESP32, Mosquitto e Node-RED
 
-## Descrição
+## 📝 Informações do Projeto
 
-Este projeto demonstra como configurar um ESP32 para conectar-se a uma rede Wi-Fi e enviar e receber dados via MQTT. A simulação é realizada no [Wokwi](https://wokwi.com/), um simulador online de hardware. O desenvolvimento é feito utilizando o Visual Studio Code com a extensão PlatformIO.
+| Item | Detalhe |
+| :--- | :--- |
+| **Disciplina** | Disruptive Architectures: IOT, IOB & Generative AI |
+| **Professor** | André Tritiack |
+| **Grupo** | Arthur Thomas RM: 561061 |
+| **Data da Entrega**| 03/11/2025 |
+| **Status** | CONCLUÍDO COM SUCESSO |
 
-## Adaptação
+---
 
-Esse repositório é uma adaptação deste tutorial.[https://docs.google.com/document/d/1y6IfbOT_rAimZx41tNBL9NlscoB1ObjgaPmy2g4UGO0/edit?usp=sharing](https://docs.google.com/document/d/1y6IfbOT_rAimZx41tNBL9NlscoB1ObjgaPmy2g4UGO0/edit?usp=sharing) 
+## 🔗 Entregáveis
 
+| Arquivo/Link | Status | Descrição |
+| :--- | :--- | :--- |
+| **Link do Vídeo** | **[https://youtu.be/oKUahJeDL2E]** | Demonstração da comunicação (Wokwi -> Mosquitto -> Node-RED) em tempo real. |
+| `integrantes.txt` | OK | Arquivo contendo os nomes completos dos membros. |
+| `q4/src/main.cpp` | OK | Código final do ESP32 com credenciais e lógica de simulação. |
 
-## Funcionalidades
+---
 
-- **Conexão Wi-Fi**: O ESP32 conecta-se automaticamente à rede Wi-Fi especificada.
-- **Comunicação MQTT**: Envia e recebe mensagens através de um broker MQTT.
-- **Simulação no Wokwi**: Permite testar o projeto sem a necessidade de hardware físico.
+## 🎯 Objetivo da Atividade
 
-## Pré-requisitos
+Implementar um sistema de comunicação IoT completo utilizando o protocolo **MQTT**. O sistema consiste em um dispositivo simulado (ESP32) enviando dados para um Broker em nuvem (Mosquitto na Azure), que é visualizado e processado em um dashboard (Node-RED).
 
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [PlatformIO IDE](https://platformio.org/install/ide?install=vscode)
-- Conta no [Wokwi](https://wokwi.com/)
-- Broker MQTT (como o [Mosquitto](https://mosquitto.org/) ou serviços online como o [HiveMQ](https://www.hivemq.com/))
+## ☁️ PARTE 1: Criação da Infraestrutura na Azure
 
-## Instalação
+Toda a infraestrutura de comunicação foi configurada em uma **Máquina Virtual** na Azure.
 
-1. **Clone o repositório:**
+### Detalhes da VM
 
-   ```bash
-   git clone https://github.com/arnaldojr/iot-esp32-wokwi-vscode.git
-   ```
+| Recurso | Detalhe |
+| :--- | :--- |
+| **IP Público** | `102.37.159.53` |
+| **Sistema Operacional** | Ubuntu Server 20.04 LTS |
+| **Node-RED Acesso** | `http://102.37.159.53:1880` |
 
-2. Abra o projeto no VSCode:
+### Portas de Comunicação (Firewall Inbound)
 
-    Abra o Visual Studio Code e navegue até a pasta do projeto clonado.
+As seguintes portas foram liberadas no Grupo de Segurança de Rede (NSG):
 
-3. Instale as dependências:
+* **22:** SSH (Acesso)
+* **1883:** MQTT (Broker Mosquitto)
+* **1880:** Node-RED (Dashboard)
 
-    O PlatformIO irá instalar automaticamente as bibliotecas necessárias durante a primeira compilação.
+### Credenciais MQTT
 
-## Configuração
+O Mosquitto Broker foi configurado para **não permitir conexões anônimas**, exigindo autenticação:
 
-Credenciais Wi-Fi e MQTT:
+* **Usuário MQTT:** `arthur`
+* **Senha MQTT:** `arthur`
 
-No arquivo src/main.cpp, insira suas credenciais de Wi-Fi e as informações do broker MQTT:
+---
 
-```cpp
+## 💻 PARTE 2: Configuração e Simulação do ESP32 (Ambiente Q4)
 
-// Configurações de WiFi
-const char *SSID = "Wokwi-GUEST"; // não precisa alterar no simulador
-const char *PASSWORD = "";        // 
+O código foi desenvolvido no ambiente PlatformIO/VS Code e simulado no Wokwi, utilizando a estrutura **`[env:q4]`** no `platform.ini`.
 
-// Configurações de MQTT
-const char *BROKER_MQTT = "broker.hivemq.com"; // seu broker mqtt
-const int BROKER_PORT = 1883;
-const char *ID_MQTT = "esp32_mqtt";
-const char *TOPIC_SUBSCRIBE_LED = "fiap/iot/led";  // seu topico SUB
-const char *TOPIC_PUBLISH_TEMP_HUMI = "fiap/iot/temphumi"; // seu tópico PUB
-```
+### 1. Dependências do PlatformIO (`platform.ini`)
 
-## Uso
+Apenas as dependências essenciais foram mantidas para o ambiente `q4`:
+* `bblanchon/ArduinoJson`: Para criar o payload JSON.
+* `knolleary/PubSubClient`: Para gerenciar a comunicação MQTT.
 
-1. Compilar o projeto:
+### 2. Lógica de Simulação (`q4/src/main.cpp`)
 
-No PlatformIO, clique em Build para compilar o código.
+O ESP32 simula a leitura de quatro variáveis, gerando valores aleatórios dentro dos limites exigidos, e publica o resultado no formato **JSON** a cada 5 segundos no tópico `fiap/grupoA/sensor_data`.
 
-2. Iniciar a simulação:
+| Variável | Range de Simulação |
+| :--- | :--- |
+| **Temperatura** | 20°C a 35°C |
+| **Umidade** | 40% a 80% |
+| **Pressão** | 980 hPa a 1050 hPa |
+| **Altitude** | 0 m a 500 m |
 
-- No Wokwi, inicie a simulação.
-- Observe a saída serial para verificar a conexão Wi-Fi e a comunicação MQTT.
+### Exemplo de Payload JSON Enviado
 
-3. Testar a comunicação MQTT:
-
-- Use um cliente MQTT (como o node-red) para publicar e subscrever tópicos para interagir com o ESP32.
-
-4. Simulação Dicas:
-
-- O Wokwi permite simular o comportamento do ESP32 em tempo real, mas preste atenção no tempo de execução que pode variar e ficar lento:
-- Utilize o monitor serial para acompanhar os logs da aplicação.
+```json
+{"id":"FIAP-GrupoA", "temperatura":26.8, "umidade":67, "pressao":982, "altitude":318, "timestamp":8176}
