@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "type": "esp32",
+      "id": "esp",
+      "top": 0,
+      "left": 0
+    }
+  ]
+}
